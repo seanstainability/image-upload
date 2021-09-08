@@ -9,11 +9,17 @@ const UploadForm = () => {
   const defaultMsg = "클릭 또는 드래그하여 사진을 업로드 해주세요.";
   const [fileName, setFileName] = useState(defaultMsg);
   const [percent, setPercent] = useState(0);
+  const [imgSrc, setImgSrc] = useState(null);
 
   const onChangeInput = (e) => {
     const image = e.target.files[0];
     setFile(image);
     setFileName(image.name);
+    const fileReader = new FileReader();
+    fileReader.readAsDataURL(image);
+    fileReader.onload = (e) => {
+      setImgSrc(e.target.result);
+    };
   };
   const onUpload = async (e) => {
     e.preventDefault();
@@ -30,27 +36,41 @@ const UploadForm = () => {
       console.log(res);
       toast.success("업로드 완료!");
       setTimeout(() => {
-        setPercent(0);
         setFileName(defaultMsg);
+        setPercent(0);
+        setImgSrc(null);
       }, 3000);
     } catch (err) {
       console.error(err);
       toast.error("업로드 실패!");
-      setPercent(0);
       setFileName(defaultMsg);
+      setPercent(0);
+      setImgSrc(null);
     }
   };
 
   return (
-    <form onSubmit={onUpload}>
-      <ProgressBar percent={percent} />
-      <div className="file-dropper">
-        {fileName}
-        {/*<label htmlFor="image-upload">{fileName}</label>*/}
-        <input id="image-upload" type="file" onChange={onChangeInput} />
-      </div>
-      <button type="submit">업로드</button>
-    </form>
+    <div>
+      <img
+        src={imgSrc}
+        alt=""
+        className={`image-preview ${imgSrc && "image-preview--show"}`}
+      />
+      <form onSubmit={onUpload}>
+        <ProgressBar percent={percent} />
+        <div className="file-dropper">
+          {fileName}
+          {/*<label htmlFor="image-upload">{fileName}</label>*/}
+          <input
+            id="image-upload"
+            type="file"
+            onChange={onChangeInput}
+            accept="image/*"
+          />
+        </div>
+        <button type="submit">업로드</button>
+      </form>
+    </div>
   );
 };
 
