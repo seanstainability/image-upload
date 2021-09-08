@@ -2,7 +2,7 @@
     height: 200px;
     border: 1px solid #000;
     border-radius: 5px;
-    background-color: #94C973;
+    background-color: #C3CEDA;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,7 +18,8 @@
 }
 
 .file-dropper:hover {
-    background-color: #76B947;
+    background-color: #0C4160;
+    color: #fff;
     transition: 0.5s;
 }
 
