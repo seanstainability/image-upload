@@ -26,7 +26,7 @@ const app = express();
 app.use("/uploads", express.static("./uploads"));
 app.post("/images", upload.single("image"), (req, res) => {
   console.log(req.file);
-  res.json({ result: "success" });
+  res.json(req.file);
 });
 
 app.listen(PORT, () => {
