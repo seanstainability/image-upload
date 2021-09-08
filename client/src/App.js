@@ -3,12 +3,14 @@ import { ToastContainer } from "material-react-toastify";
 import "material-react-toastify/dist/ReactToastify.css";
 
 import UploadForm from "./components/UploadForm";
+import ImageList from "./components/ImageList";
 
 const App = () => {
   return (
-    <div>
-      <h2>우리들의 사진첩</h2>
+    <div style={{ maxWidth: 600, margin: "auto" }}>
+      <h2>사진첩</h2>
       <UploadForm />
+      <ImageList />
       <ToastContainer />
     </div>
   );
