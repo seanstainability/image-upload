@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "./UploadForm.css";
 
 const UploadForm = () => {
   const [file, setFile] = useState(null);
-  const [fileName, setFileName] = useState("");
+  const defaultMsg = "클릭 또는 드래그하여 사진을 업로드 해주세요.";
+  const [fileName, setFileName] = useState(defaultMsg);
 
   const onChangeInput = (e) => {
     const image = e.target.files[0];
@@ -26,8 +28,11 @@ const UploadForm = () => {
 
   return (
     <form onSubmit={onUpload}>
-      <label htmlFor="image-upload">이미지</label>
-      <input id="image-upload" type="file" onChange={onChangeInput} />
+      <div className="file-dropper">
+        {fileName}
+        {/*<label htmlFor="image-upload">{fileName}</label>*/}
+        <input id="image-upload" type="file" onChange={onChangeInput} />
+      </div>
       <button type="submit">업로드</button>
     </form>
   );

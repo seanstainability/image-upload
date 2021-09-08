@@ -25,7 +25,7 @@ const app = express();
 
 app.use("/uploads", express.static("./uploads"));
 app.post("/images", upload.single("image"), (req, res) => {
-  console.log(req.file);
+  // console.log(req.file);
   res.json(req.file);
 });
 
