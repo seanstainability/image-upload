@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const imageRouter = Router();
 const Image = require("../models/Image");
-const { upload } = require("../middlewares/ImageUpload");
+const { upload } = require("../middlewares/imageUpload");
 
 imageRouter.get("/", async (req, res) => {
   const images = await Image.find();

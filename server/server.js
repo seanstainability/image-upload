@@ -1,14 +1,18 @@
 const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
-const { imageRouter } = require("./routes/ImageRouter");
+const { imageRouter } = require("./routes/imageRouter");
+const { userRouter } = require("./routes/userRouter");
+const { authenticate } = require("./middlewares/authentication");
 const app = express();
 
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB Connected!");
+    app.use(authenticate);
     app.use("/uploads", express.static("./uploads"));
+    app.use("/users", userRouter);
     app.use("/images", imageRouter);
 
     app.listen(process.env.PORT, () => {
