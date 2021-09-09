@@ -9,7 +9,7 @@ const ToolBar = () => {
 
   const onLogout = async () => {
     try {
-      await axios.patch("/logout");
+      await axios.patch("users/logout");
       setMe();
       toast.success("로그아웃 완료!");
     } catch (err) {
@@ -25,7 +25,10 @@ const ToolBar = () => {
       </Link>
       {me ? (
         <>
-          <span onClick={onLogout} style={{ float: "right" }}>
+          <span
+            onClick={onLogout}
+            style={{ float: "right", cursor: "pointer" }}
+          >
             로그아웃
           </span>
           <span style={{ float: "right", marginRight: 10 }}>{me.nickname}</span>

@@ -30,7 +30,7 @@ const LoginPage = () => {
       history.push("/");
     } catch (err) {
       console.error(err);
-      toast.error(err.response.data.message);
+      toast.error(err.message);
     }
   };
 
@@ -45,7 +45,7 @@ const LoginPage = () => {
           handler={onChangePassword}
           type="password"
         />
-        <button type="submit">회원가입</button>
+        <button type="submit">로그인</button>
       </form>
     </div>
   );

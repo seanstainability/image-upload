@@ -7,12 +7,13 @@ import ProgressBar from "./ProgressBar";
 import { ImageContext } from "../context/ImageContext";
 
 const UploadForm = () => {
-  const [images, setImages] = useContext(ImageContext);
+  const { images, setImages, myImages, setMyImages } = useContext(ImageContext);
   const [file, setFile] = useState(null);
   const defaultMsg = "클릭 또는 드래그하여 사진을 업로드 해주세요.";
   const [fileName, setFileName] = useState(defaultMsg);
   const [percent, setPercent] = useState(0);
   const [imgSrc, setImgSrc] = useState(null);
+  const [isPublic, setIsPublic] = useState(false);
 
   const onChangeInput = (e) => {
     const image = e.target.files[0];
@@ -28,6 +29,7 @@ const UploadForm = () => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("image", file);
+    formData.append("public", isPublic);
     try {
       const res = await axios.post("/images", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -46,7 +48,7 @@ const UploadForm = () => {
       }, 3000);
     } catch (err) {
       console.error(err);
-      toast.error("업로드 실패!");
+      toast.error(err.response.data.message);
       setFileName(defaultMsg);
       setPercent(0);
       setImgSrc(null);
@@ -72,6 +74,13 @@ const UploadForm = () => {
             accept="image/*"
           />
         </div>
+        <input
+          type="checkbox"
+          id="public-check"
+          value={isPublic}
+          onChange={(e) => setIsPublic(!isPublic)}
+        />
+        <label htmlFor="public-check">공개</label>
         <button type="submit">업로드</button>
       </form>
     </div>
