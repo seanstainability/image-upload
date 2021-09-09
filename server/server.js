@@ -10,6 +10,7 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB Connected!");
+    app.use(express.json());
     app.use(authenticate);
     app.use("/uploads", express.static("./uploads"));
     app.use("/users", userRouter);
