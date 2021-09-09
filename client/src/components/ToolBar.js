@@ -20,6 +20,7 @@ const ToolBar = () => {
 
   return (
     <div>
+      <hr />
       <Link to="/">
         <span>홈</span>
       </Link>
@@ -43,6 +44,7 @@ const ToolBar = () => {
           </Link>
         </>
       )}
+      <hr />
     </div>
   );
 };

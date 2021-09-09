@@ -9,7 +9,7 @@ const Image = require("../models/Image");
 const { upload } = require("../middlewares/imageUpload");
 
 imageRouter.get("/", async (req, res) => {
-  const images = await Image.find();
+  const images = await Image.find({ public: true });
   // console.log(images);
   res.json(images);
 });

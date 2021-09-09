@@ -47,7 +47,7 @@ const RegisterPage = () => {
 
   return (
     <div style={{ maxWidth: 350, margin: "auto" }}>
-      <h3>회원가입</h3>
+      <h3>[ 회원가입 ]</h3>
       <form onSubmit={onRegister}>
         <CustomInput label="이메일" value={email} handler={onChangeEmail} />
         <CustomInput

@@ -4,6 +4,7 @@ import "material-react-toastify/dist/ReactToastify.css";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import MainPage from "./pages/MainPage";
+import ImagePage from "./pages/ImagePage";
 import { Switch, Route } from "react-router-dom";
 import ToolBar from "./components/ToolBar";
 
@@ -14,6 +15,7 @@ const App = () => {
       <Switch>
         <Route path="/auth/register" exact component={RegisterPage} />
         <Route path="/auth/login" exact component={LoginPage} />
+        <Route path="/images/:imageId" exact component={ImagePage} />
         <Route path="/" exact component={MainPage} />
       </Switch>
       <ToastContainer />

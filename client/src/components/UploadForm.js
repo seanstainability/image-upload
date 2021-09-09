@@ -39,7 +39,11 @@ const UploadForm = () => {
         },
       });
       console.log(res.data);
-      setImages([...images, res.data]);
+      if (res.data.public) {
+        setImages([...images, res.data]);
+      } else {
+        setMyImages([...myImages, res.data]);
+      }
       toast.success("업로드 완료!");
       setTimeout(() => {
         setFileName(defaultMsg);
@@ -81,7 +85,9 @@ const UploadForm = () => {
           onChange={(e) => setIsPublic(!isPublic)}
         />
         <label htmlFor="public-check">공개</label>
-        <button type="submit">업로드</button>
+        <button type="submit" style={{ float: "right" }}>
+          업로드
+        </button>
       </form>
     </div>
   );

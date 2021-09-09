@@ -36,7 +36,7 @@ const LoginPage = () => {
 
   return (
     <div style={{ maxWidth: 350, margin: "auto" }}>
-      <h3>로그인</h3>
+      <h3>[ 로그인 ]</h3>
       <form onSubmit={onLogIn}>
         <CustomInput label="이메일" value={email} handler={onChangeEmail} />
         <CustomInput
