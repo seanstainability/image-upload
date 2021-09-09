@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const ImageSchema = new mongoose.Schema(
   {
     user: {
-      _id: { type: mongoose.Types.ObjectId, require: true },
+      _id: { type: mongoose.Types.ObjectId, require: true, index: true },
       nickname: { type: String, require: true },
       email: { type: String, require: true },
     },
