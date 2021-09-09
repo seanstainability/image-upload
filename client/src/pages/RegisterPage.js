@@ -33,7 +33,7 @@ const RegisterPage = () => {
       });
       console.log(result);
       setMe({
-        // userId: result.data.userId, ?
+        userId: result.data.userId,
         sessionId: result.data.sessionId,
         nickname: result.data.nickname,
       });
@@ -41,7 +41,7 @@ const RegisterPage = () => {
       history.push("/");
     } catch (err) {
       console.error(err);
-      toast.error("회원가입 실패!");
+      toast.error(err.response.data.message);
     }
   };
 

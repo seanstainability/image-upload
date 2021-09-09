@@ -24,6 +24,7 @@ userRouter.post("/register", async (req, res) => {
       message: "user registered!",
       sessionId: session._id,
       nickname: user.nickname,
+      userId: user._id,
     });
   } catch (err) {
     console.error(err);
@@ -33,6 +34,7 @@ userRouter.post("/register", async (req, res) => {
 userRouter.patch("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
+    if (!user) throw new Error("가입되지 않은 이메일입니다.");
     const isValid = compare(req.body.password, user.hashedPassword);
     if (!isValid) throw new Error("입력하신 정보가 올바르지 않습니다.");
     user.sessions.push({ createdAt: new Date() });
@@ -42,9 +44,11 @@ userRouter.patch("/login", async (req, res) => {
       message: "user validated!",
       sessionId: session._id,
       nickname: user.nickname,
+      userId: user._id,
     });
   } catch (err) {
     console.error(err);
+    res.status(400).json({ message: err.message });
   }
 });
 userRouter.patch("/logout", async (req, res) => {
@@ -58,6 +62,21 @@ userRouter.patch("/logout", async (req, res) => {
     res.json({ message: "user logged out!" });
   } catch (err) {
     console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+userRouter.get("/me", (req, res) => {
+  try {
+    if (!req.user) throw new Error("권한이 없습니다.");
+    res.json({
+      message: "user validated!",
+      sessionId: req.headers.sessionid,
+      nickname: req.user.nickname,
+      userId: req.user._id,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
   }
 });
 

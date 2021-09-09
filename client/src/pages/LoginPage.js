@@ -22,7 +22,7 @@ const LoginPage = () => {
       const result = await axios.patch("/users/login", { email, password });
       console.log(result);
       setMe({
-        // userId: result.data.userId, ?
+        userId: result.data.userId,
         sessionId: result.data.sessionId,
         nickname: result.data.nickname,
       });
@@ -30,7 +30,7 @@ const LoginPage = () => {
       history.push("/");
     } catch (err) {
       console.error(err);
-      toast.error("로그인 실패");
+      toast.error(err.response.data.message);
     }
   };
 
