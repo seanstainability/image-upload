@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import "./ImageList.css";
 import { Link } from "react-router-dom";
 
@@ -7,14 +7,43 @@ import { AuthContext } from "../context/AuthContext";
 
 const ImageList = () => {
   const [me] = useContext(AuthContext);
-  const { images, myImages, isPublic, setIsPublic, loadMoreImages } =
-    useContext(ImageContext);
+  const {
+    images,
+    myImages,
+    isPublic,
+    setIsPublic,
+    loadMoreImages,
+    imgLoading,
+  } = useContext(ImageContext);
+  const elementRef = useRef(null);
 
-  const imageList = (isPublic ? images : myImages).map((image) => (
-    <Link to={`/images/${image._id}`} key={image.key}>
-      <img src={`/uploads/${image.key}`} alt="" />
-    </Link>
-  ));
+  useEffect(() => {
+    if (!elementRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) loadMoreImages();
+    });
+    observer.observe(elementRef.current);
+    return () => observer.disconnect();
+  }, [loadMoreImages]);
+  const imageList = isPublic
+    ? images.map((image, index) => (
+        <Link
+          to={`/images/${image._id}`}
+          key={image.key}
+          ref={index + 1 === images.length ? elementRef : undefined}
+        >
+          <img src={`/uploads/${image.key}`} alt="" />
+        </Link>
+      ))
+    : myImages.map((image, index) => (
+        <Link
+          to={`/images/${image._id}`}
+          key={image.key}
+          ref={index + 5 === images.length ? elementRef : undefined} // 4번째 전
+        >
+          <img src={`/uploads/${image.key}`} alt="" />
+        </Link>
+      ));
 
   return (
     <div>
@@ -35,7 +64,12 @@ const ImageList = () => {
         )}
       </div>
       <div className="image-list--container">{imageList}</div>
-      <button onClick={loadMoreImages}>더보기</button>
+      {imgLoading && <div>로딩 중...</div>}
+      {/*{imgLoading ? (*/}
+      {/*  <div>로딩 중...</div>*/}
+      {/*) : (*/}
+      {/*  <button onClick={loadMoreImages}>더보기</button>*/}
+      {/*)}*/}
     </div>
   );
 };
