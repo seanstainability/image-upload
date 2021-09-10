@@ -57,7 +57,8 @@ imageRouter.post("/", upload.array("image", 10), async (req, res) => {
             email: req.user.email,
           },
           public: req.body.public,
-          key: file.filename,
+          // key: file.filename,
+          key: file.key.replace("raw/", ""),
           originalFileName: file.originalname,
         }).save();
         return image;
