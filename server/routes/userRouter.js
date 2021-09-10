@@ -82,8 +82,24 @@ userRouter.get("/me", (req, res) => {
 });
 userRouter.get("/me/images", async (req, res) => {
   try {
+    const { lastId } = req.query;
     if (!req.user) throw new Error("권한이 없습니다.");
-    const images = await Image.find({ "user._id": req.user.id, public: false });
+    if (lastId && !mongoose.isValidObjectId(lastId))
+      throw new Error("페이지 정보가 올바르지 않습니다.");
+    const images = await Image.find(
+      lastId
+        ? {
+            "user._id": req.user.id,
+            _id: { $lt: lastId },
+            public: false,
+          }
+        : {
+            "user._id": req.user.id,
+            public: false,
+          }
+    )
+      .sort({ _id: -1 })
+      .limit(20);
     res.json(images);
   } catch (err) {
     console.error(err);

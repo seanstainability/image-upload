@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useCallback, useContext, useEffect, useRef } from "react";
 import "./ImageList.css";
 import { Link } from "react-router-dom";
 
@@ -7,16 +7,15 @@ import { AuthContext } from "../context/AuthContext";
 
 const ImageList = () => {
   const [me] = useContext(AuthContext);
-  const {
-    images,
-    myImages,
-    isPublic,
-    setIsPublic,
-    loadMoreImages,
-    imgLoading,
-  } = useContext(ImageContext);
+  const { images, isPublic, setIsPublic, imgLoading, setImgUrl } =
+    useContext(ImageContext);
   const elementRef = useRef(null);
 
+  const lastImageId = images.length > 0 ? images[images.length - 1]._id : null;
+  const loadMoreImages = useCallback(() => {
+    if (imgLoading || !lastImageId) return;
+    setImgUrl(`${isPublic ? "" : "/users/me"}/images?lastId=${lastImageId}`);
+  }, [lastImageId, imgLoading, isPublic, setImgUrl]);
   useEffect(() => {
     if (!elementRef.current) return;
     const observer = new IntersectionObserver(([entry]) => {
@@ -25,25 +24,15 @@ const ImageList = () => {
     observer.observe(elementRef.current);
     return () => observer.disconnect();
   }, [loadMoreImages]);
-  const imageList = isPublic
-    ? images.map((image, index) => (
-        <Link
-          to={`/images/${image._id}`}
-          key={image.key}
-          ref={index + 1 === images.length ? elementRef : undefined}
-        >
-          <img src={`/uploads/${image.key}`} alt="" />
-        </Link>
-      ))
-    : myImages.map((image, index) => (
-        <Link
-          to={`/images/${image._id}`}
-          key={image.key}
-          ref={index + 5 === images.length ? elementRef : undefined} // 4번째 전
-        >
-          <img src={`/uploads/${image.key}`} alt="" />
-        </Link>
-      ));
+  const imageList = images.map((image, index) => (
+    <Link
+      to={`/images/${image._id}`}
+      key={image.key}
+      ref={index + 1 === images.length ? elementRef : undefined}
+    >
+      <img src={`/uploads/${image.key}`} alt="" />
+    </Link>
+  ));
 
   return (
     <div>
