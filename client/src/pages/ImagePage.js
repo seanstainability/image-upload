@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "material-react-toastify";
@@ -13,30 +13,27 @@ const ImagePage = () => {
   const [me] = useContext(AuthContext);
   const [hasLiked, setHasLiked] = useState(false);
   const [image, setImage] = useState(null);
-  const imageRef = useRef();
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    imageRef.current = images.find((img) => img._id === imageId);
+    const image = images.find((img) => img._id === imageId);
+    if (image) setImage(image);
   }, [images, imageId]);
   useEffect(() => {
-    if (imageRef.current) {
-      setImage(imageRef.current);
-    } else {
-      axios
-        .get(`/images/${imageId}`)
-        .then(({ data }) => {
-          console.log("setImage", data);
-          setImage(data);
-          setError(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          setError(true);
-          toast.error(err.response.data.message);
-        });
-    }
-  }, [imageId]);
+    if (image && image._id === imageId) return;
+    axios
+      .get(`/images/${imageId}`)
+      .then(({ data }) => {
+        console.log("setImage", data);
+        setImage(data);
+        setError(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(true);
+        toast.error(err.response.data.message);
+      });
+  }, [imageId, image]);
   useEffect(() => {
     if (me && image?.likes.map((v) => v._id).includes(me.userId))
       setHasLiked(true);
