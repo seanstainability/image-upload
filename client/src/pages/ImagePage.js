@@ -24,7 +24,6 @@ const ImagePage = () => {
     axios
       .get(`/images/${imageId}`)
       .then(({ data }) => {
-        console.log("setImage", data);
         setImage(data);
         setError(false);
       })
@@ -39,10 +38,11 @@ const ImagePage = () => {
       setHasLiked(true);
   }, [me, image]);
   const updateImage = (images, image) =>
-    [...images.filter((img) => img._id !== imageId), image].sort(
-      (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
+    [...images.filter((img) => img._id !== imageId), image].sort((a, b) => {
+      // new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      if (a._id < b._id) return 1;
+      else return -1;
+    });
   const onToggleLike = async () => {
     const result = await axios.patch(
       `/images/${imageId}/${hasLiked ? "unlike" : "like"}`

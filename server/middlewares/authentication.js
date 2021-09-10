@@ -7,6 +7,7 @@ const authenticate = async (req, res, next) => {
   const user = await User.findOne({ "sessions._id": sessionid });
   if (!user) return next();
   req.user = user;
+  console.log("req.user", req.user);
   // sessions의 createAt을 조회하여 req.user를 처리해주지 않고, sessionid를 지워버리는 식으로 보안을 강화해준다.
   return next();
 };
