@@ -8,27 +8,40 @@ import { ImageContext } from "../context/ImageContext";
 
 const UploadForm = () => {
   const { images, setImages, myImages, setMyImages } = useContext(ImageContext);
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState(null);
   const defaultMsg = "클릭 또는 드래그하여 사진을 업로드 해주세요.";
-  const [fileName, setFileName] = useState(defaultMsg);
+  // const [fileName, setFileName] = useState(defaultMsg);
   const [percent, setPercent] = useState(0);
-  const [imgSrc, setImgSrc] = useState(null);
+  // const [imgSrc, setImgSrc] = useState(null);
   const [isPublic, setIsPublic] = useState(false);
+  const [previews, setPreviews] = useState([]);
 
-  const onChangeInput = (e) => {
-    const image = e.target.files[0];
-    setFile(image);
-    setFileName(image.name);
-    const fileReader = new FileReader();
-    fileReader.readAsDataURL(image);
-    fileReader.onload = (e) => {
-      setImgSrc(e.target.result);
-    };
+  const onChangeInput = async (e) => {
+    const images = e.target.files;
+    setFiles(images);
+    const imagePreviews = await Promise.all(
+      [...images].map(async (img) => {
+        return new Promise((resolve, reject) => {
+          try {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(img);
+            fileReader.onload = (e) => {
+              resolve({ imgSrc: e.target.result, fileName: img.name });
+            };
+          } catch (err) {
+            reject(err);
+          }
+        });
+      })
+    );
+    setPreviews(imagePreviews);
   };
   const onUpload = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("image", file);
+    for (let file of files) {
+      formData.append("image", file);
+    }
     formData.append("public", isPublic);
     try {
       const res = await axios.post("/images", formData, {
@@ -40,32 +53,52 @@ const UploadForm = () => {
       });
       console.log(res.data);
       if (res.data.public) {
-        setImages([...images, res.data]);
+        setImages([...images, ...res.data]);
       } else {
-        setMyImages([...myImages, res.data]);
+        setMyImages([...myImages, ...res.data]);
       }
       toast.success("업로드 완료!");
       setTimeout(() => {
-        setFileName(defaultMsg);
+        // setFileName(defaultMsg);
         setPercent(0);
-        setImgSrc(null);
+        // setImgSrc(null);
+        setPreviews([]);
       }, 3000);
     } catch (err) {
       console.error(err);
       toast.error(err.response.data.message);
-      setFileName(defaultMsg);
+      // setFileName(defaultMsg);
       setPercent(0);
-      setImgSrc(null);
+      // setImgSrc(null);
+      setPreviews([]);
     }
   };
+  const previewImages = previews.map((preview, index) => (
+    <img
+      key={index}
+      src={preview.imgSrc}
+      alt=""
+      style={{ width: 250, height: 250, objectFit: "cover" }}
+      className={`image-preview ${preview.imgSrc && "image-preview--show"}`}
+    />
+  ));
+  const fileName =
+    previews.length === 0
+      ? defaultMsg
+      : previews.reduce((prev, curr) => prev + `${curr.fileName}\n`, "");
 
   return (
     <div>
-      <img
-        src={imgSrc}
-        alt=""
-        className={`image-preview ${imgSrc && "image-preview--show"}`}
-      />
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "space-evenly",
+          marginBottom: 20,
+        }}
+      >
+        {previewImages}
+      </div>
       <form onSubmit={onUpload}>
         <ProgressBar percent={percent} />
         <div className="file-dropper">
@@ -74,6 +107,7 @@ const UploadForm = () => {
           <input
             id="image-upload"
             type="file"
+            multiple
             onChange={onChangeInput}
             accept="image/*"
           />
