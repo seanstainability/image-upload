@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "material-react-toastify";
@@ -12,8 +12,31 @@ const ImagePage = () => {
   const { images, setImages, setMyImages } = useContext(ImageContext);
   const [me] = useContext(AuthContext);
   const [hasLiked, setHasLiked] = useState(false);
+  const [image, setImage] = useState(null);
+  const imageRef = useRef();
+  const [error, setError] = useState(false);
 
-  const image = images.find((img) => img._id === imageId);
+  useEffect(() => {
+    imageRef.current = images.find((img) => img._id === imageId);
+  }, [images, imageId]);
+  useEffect(() => {
+    if (imageRef.current) {
+      setImage(imageRef.current);
+    } else {
+      axios
+        .get(`/images/${imageId}`)
+        .then(({ data }) => {
+          console.log("setImage", data);
+          setImage(data);
+          setError(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(true);
+          toast.error(err.response.data.message);
+        });
+    }
+  }, [imageId]);
   useEffect(() => {
     if (me && image?.likes.map((v) => v._id).includes(me.userId))
       setHasLiked(true);
@@ -48,7 +71,8 @@ const ImagePage = () => {
       toast.error(err.message);
     }
   };
-  if (!image) return <h4>로딩 중...</h4>;
+  if (error) return <h4>잘못된 접근입니다.</h4>;
+  else if (!image) return <h4>로딩 중...</h4>;
 
   return (
     <div>

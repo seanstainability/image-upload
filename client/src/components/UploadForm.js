@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import axios from "axios";
 import "./UploadForm.css";
 import { toast } from "material-react-toastify";
@@ -15,6 +15,7 @@ const UploadForm = () => {
   // const [imgSrc, setImgSrc] = useState(null);
   const [isPublic, setIsPublic] = useState(false);
   const [previews, setPreviews] = useState([]);
+  const inputRef = useRef();
 
   const onChangeInput = async (e) => {
     const images = e.target.files;
@@ -63,6 +64,7 @@ const UploadForm = () => {
         setPercent(0);
         // setImgSrc(null);
         setPreviews([]);
+        inputRef.current.value = null;
       }, 3000);
     } catch (err) {
       console.error(err);
@@ -71,6 +73,7 @@ const UploadForm = () => {
       setPercent(0);
       // setImgSrc(null);
       setPreviews([]);
+      inputRef.current.value = null;
     }
   };
   const previewImages = previews.map((preview, index) => (
@@ -110,6 +113,7 @@ const UploadForm = () => {
             type="file"
             multiple
             onChange={onChangeInput}
+            ref={inputRef}
             accept="image/*"
           />
         </div>
