@@ -7,7 +7,7 @@ import ProgressBar from "./ProgressBar";
 import { ImageContext } from "../context/ImageContext";
 
 const UploadForm = () => {
-  const { setImages } = useContext(ImageContext);
+  const { setImages, setMyImages } = useContext(ImageContext);
   const [files, setFiles] = useState(null);
   const defaultMsg = "클릭 또는 드래그하여 사진을 업로드 해주세요.";
   // const [fileName, setFileName] = useState(defaultMsg);
@@ -52,7 +52,11 @@ const UploadForm = () => {
         },
       });
       console.log(res.data);
-      setImages((prev) => [...prev, ...res.data]);
+      if (isPublic) {
+        setImages((prev) => [...res.data, ...prev]);
+      } else {
+        setMyImages((prev) => [...res.data, ...prev]);
+      }
       toast.success("업로드 완료!");
       setTimeout(() => {
         // setFileName(defaultMsg);

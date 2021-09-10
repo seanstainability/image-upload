@@ -9,13 +9,11 @@ import { AuthContext } from "../context/AuthContext";
 const ImagePage = () => {
   const history = useHistory();
   const { imageId } = useParams();
-  const { images, myImages, setImages, setMyImages } = useContext(ImageContext);
+  const { images, setImages, setMyImages } = useContext(ImageContext);
   const [me] = useContext(AuthContext);
   const [hasLiked, setHasLiked] = useState(false);
 
-  const image =
-    images.find((img) => img._id === imageId) ||
-    myImages.find((img) => img._id === imageId);
+  const image = images.find((img) => img._id === imageId);
   useEffect(() => {
     if (me && image?.likes.map((v) => v._id).includes(me.userId))
       setHasLiked(true);
@@ -32,7 +30,7 @@ const ImagePage = () => {
     if (result.data.public) {
       setImages(updateImage(images, result.data));
     } else {
-      setMyImages(updateImage(myImages, result.data));
+      setMyImages(updateImage(images, result.data));
     }
     setHasLiked(!hasLiked);
   };
@@ -43,7 +41,7 @@ const ImagePage = () => {
       const result = await axios.delete(`/images/${imageId}`);
       toast.success(result.data.message);
       setImages(deleteImage(images));
-      setMyImages(deleteImage(myImages));
+      setMyImages(deleteImage(images));
       history.push("/");
     } catch (err) {
       console.error(err);
