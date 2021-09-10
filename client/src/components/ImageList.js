@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import "./ImageList.css";
 import { Link } from "react-router-dom";
 
@@ -7,7 +7,8 @@ import { AuthContext } from "../context/AuthContext";
 
 const ImageList = () => {
   const [me] = useContext(AuthContext);
-  const { images, myImages, isPublic, setIsPublic } = useContext(ImageContext);
+  const { images, myImages, isPublic, setIsPublic, loadMoreImages } =
+    useContext(ImageContext);
 
   const imageList = (isPublic ? images : myImages).map((image) => (
     <Link to={`/images/${image._id}`} key={image.key}>
@@ -34,6 +35,7 @@ const ImageList = () => {
         )}
       </div>
       <div className="image-list--container">{imageList}</div>
+      <button onClick={loadMoreImages}>더보기</button>
     </div>
   );
 };

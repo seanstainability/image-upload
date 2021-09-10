@@ -9,9 +9,21 @@ const Image = require("../models/Image");
 const { upload } = require("../middlewares/imageUpload");
 
 imageRouter.get("/", async (req, res) => {
-  const images = await Image.find({ public: true });
-  // console.log(images);
-  res.json(images);
+  try {
+    const { lastId } = req.query;
+    if (lastId && !mongoose.isValidObjectId(lastId))
+      throw new Error("페이지 정보가 올바르지 않습니다.");
+    const images = await Image.find(
+      lastId ? { public: true, _id: { $lt: lastId } } : { public: true }
+    )
+      .sort({ _id: -1 })
+      .limit(20);
+    // console.log(images);
+    res.json(images);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
 });
 imageRouter.post("/", upload.array("image", 10), async (req, res) => {
   try {
