@@ -93,6 +93,7 @@ const UploadForm = () => {
         style={{
           display: "flex",
           flexWrap: "wrap",
+          gap: 20,
           justifyContent: "space-evenly",
           marginBottom: 20,
         }}
