@@ -4,6 +4,7 @@ const fs = require("fs");
 const { promisify } = require("util");
 const fileUnlink = promisify(fs.unlink);
 const mongoose = require("mongoose");
+const { s3 } = require("../aws");
 
 const Image = require("../models/Image");
 const { upload } = require("../middlewares/imageUpload");
@@ -80,7 +81,13 @@ imageRouter.delete("/:imageId", async (req, res) => {
     const image = await Image.findOneAndDelete({ _id: req.params.imageId });
     if (!image)
       return res.json({ message: "요청하신 사진은 이미 삭제되었습니다." });
-    await fileUnlink(`./uploads/${image.key}`);
+    // await fileUnlink(`./uploads/${image.key}`);
+    s3.deleteObject(
+      { Bucket: "image-upload-album", Key: `raw/${image.key}` },
+      (err, data) => {
+        if (err) throw err;
+      }
+    );
     res.json({ message: "요청하신 이미지가 삭제되었습니다.", image });
   } catch (err) {
     console.error(err);

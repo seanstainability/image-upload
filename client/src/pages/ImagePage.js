@@ -90,7 +90,11 @@ const ImagePage = () => {
           </button>
         )}
       </div>
-      <img src={`/uploads/${image.key}`} alt="" style={{ width: "100%" }} />
+      <img
+        src={`https://image-upload-album.s3.ap-northeast-2.amazonaws.com/raw/${image.key}`}
+        alt=""
+        style={{ width: "100%" }}
+      />
     </div>
   );
 };
