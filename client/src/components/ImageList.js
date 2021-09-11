@@ -31,7 +31,7 @@ const ImageList = () => {
       ref={index + 1 === images.length ? elementRef : undefined}
     >
       <img
-        src={`https://image-upload-album.s3.ap-northeast-2.amazonaws.com/raw/${image.key}`}
+        src={`https://image-upload-album.s3.ap-northeast-2.amazonaws.com/w140/${image.key}`}
         alt=""
       />
     </Link>
