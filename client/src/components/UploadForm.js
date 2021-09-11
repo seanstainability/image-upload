@@ -11,7 +11,7 @@ const UploadForm = () => {
   const [files, setFiles] = useState(null);
   const defaultMsg = "클릭 또는 드래그하여 사진을 업로드 해주세요.";
   // const [fileName, setFileName] = useState(defaultMsg);
-  const [percent, setPercent] = useState(0);
+  const [percent, setPercent] = useState([]);
   // const [imgSrc, setImgSrc] = useState(null);
   const [isPublic, setIsPublic] = useState(false);
   const [previews, setPreviews] = useState([]);
@@ -76,14 +76,70 @@ const UploadForm = () => {
       inputRef.current.value = null;
     }
   };
+  const onUploadV2 = async (e) => {
+    try {
+      e.preventDefault();
+      const presignedData = await axios.post("/images/presigned", {
+        contentTypes: [...files].map((file) => file.type),
+      });
+      await Promise.all(
+        [...files].map((file, index) => {
+          const { presigned } = presignedData.data[index];
+          const formData = new FormData();
+          for (const key in presigned.fields) {
+            formData.append(key, presigned.fields[key]);
+          }
+          formData.append("Content-Type", file.type);
+          formData.append("file", file);
+          return axios.post(presigned.url, formData, {
+            onUploadProgress: (e) => {
+              // const progressPercent = Math.round((100 * e.loaded) / e.total);
+              setPercent((prev) => {
+                const newData = [...prev];
+                newData[index] = Math.round((100 * e.loaded) / e.total);
+                return newData;
+              });
+            },
+          });
+        })
+      );
+      const res = await axios.post("/images", {
+        images: [...files].map((file, index) => ({
+          imageKey: presignedData.data[index].imageKey,
+          originalname: file.name,
+        })),
+        public: isPublic,
+      });
+      console.log(res.data);
+      if (isPublic) {
+        setImages((prev) => [...res.data, ...prev]);
+      } else {
+        setMyImages((prev) => [...res.data, ...prev]);
+      }
+      toast.success("업로드 완료!");
+      setTimeout(() => {
+        setPercent([]);
+        setPreviews([]);
+        inputRef.current.value = null;
+      }, 3000);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response.data.message);
+      setPercent([]);
+      setPreviews([]);
+      inputRef.current.value = null;
+    }
+  };
   const previewImages = previews.map((preview, index) => (
-    <img
-      key={index}
-      src={preview.imgSrc}
-      alt=""
-      style={{ width: 250, height: 250, objectFit: "cover" }}
-      className={`image-preview ${preview.imgSrc && "image-preview--show"}`}
-    />
+    <div key={index}>
+      <img
+        src={preview.imgSrc}
+        alt=""
+        style={{ width: 250, height: 250, objectFit: "cover" }}
+        className={`image-preview ${preview.imgSrc && "image-preview--show"}`}
+      />
+      <ProgressBar percent={percent[index]} />
+    </div>
   ));
   const fileName =
     previews.length === 0
@@ -103,8 +159,7 @@ const UploadForm = () => {
       >
         {previewImages}
       </div>
-      <form onSubmit={onUpload}>
-        <ProgressBar percent={percent} />
+      <form onSubmit={onUploadV2}>
         <div className="file-dropper">
           {fileName}
           {/*<label htmlFor="image-upload">{fileName}</label>*/}

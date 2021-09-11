@@ -1,13 +1,15 @@
 const { Router } = require("express");
 const imageRouter = Router();
-const fs = require("fs");
-const { promisify } = require("util");
-const fileUnlink = promisify(fs.unlink);
+// const fs = require("fs");
+// const { promisify } = require("util");
+// const fileUnlink = promisify(fs.unlink);
 const mongoose = require("mongoose");
-const { s3 } = require("../aws");
+const { v4: uuid } = require("uuid");
+const mime = require("mime-types");
 
 const Image = require("../models/Image");
 const { upload } = require("../middlewares/imageUpload");
+const { s3, getSignedUrl } = require("../aws");
 
 imageRouter.get("/", async (req, res) => {
   try {
@@ -49,24 +51,70 @@ imageRouter.post("/", upload.array("image", 10), async (req, res) => {
     // console.log(req.file);
     // console.log(req.files, req.body);
     if (!req.user) throw new Error("권한이 없습니다.");
-    const images = await Promise.all(
-      req.files.map(async (file) => {
-        const image = await new Image({
+    const { images, public } = req.body;
+    const imageDocs = await Promise.all(
+      images.map((image) =>
+        new Image({
           user: {
             _id: req.user.id,
             nickname: req.user.nickname,
             email: req.user.email,
           },
           public: req.body.public,
-          // key: file.filename,
-          key: file.key.replace("raw/", ""),
-          originalFileName: file.originalname,
-        }).save();
-        return image;
+          key: image.imageKey,
+          originalFileName: image.originalname,
+        }).save()
+      )
+    );
+    console.log(imageDocs);
+    res.json(imageDocs);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+// imageRouter.post("/", upload.array("image", 10), async (req, res) => {
+//   try {
+//     // console.log(req.file);
+//     // console.log(req.files, req.body);
+//     if (!req.user) throw new Error("권한이 없습니다.");
+//     const images = await Promise.all(
+//       req.files.map(async (file) => {
+//         const image = await new Image({
+//           user: {
+//             _id: req.user.id,
+//             nickname: req.user.nickname,
+//             email: req.user.email,
+//           },
+//           public: req.body.public,
+//           // key: file.filename,
+//           key: file.key.replace("raw/", ""),
+//           originalFileName: file.originalname,
+//         }).save();
+//         return image;
+//       })
+//     );
+//     console.log(images);
+//     res.json(images);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(400).json({ message: err.message });
+//   }
+// });
+imageRouter.post("/presigned", async (req, res) => {
+  try {
+    if (!req.user) throw new Error("권한이 없습니다.");
+    const { contentTypes } = req.body;
+    if (!Array.isArray(contentTypes)) throw new Error("invalid content type");
+    const presignedData = await Promise.all(
+      contentTypes.map(async (contentType) => {
+        const imageKey = `${uuid()}.${mime.extension(contentType)}`;
+        const key = `raw/${imageKey}`;
+        const presigned = await getSignedUrl({ key });
+        return { imageKey, presigned };
       })
     );
-    console.log(images);
-    res.json(images);
+    res.json(presignedData);
   } catch (err) {
     console.error(err);
     res.status(400).json({ message: err.message });
