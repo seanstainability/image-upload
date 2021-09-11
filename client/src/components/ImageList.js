@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { ImageContext } from "../context/ImageContext";
 import { AuthContext } from "../context/AuthContext";
+import Image from "../components/Image";
 
 const ImageList = () => {
   const [me] = useContext(AuthContext);
@@ -30,9 +31,8 @@ const ImageList = () => {
       key={image.key}
       ref={index + 1 === images.length ? elementRef : undefined}
     >
-      <img
-        src={`https://image-upload-album.s3.ap-northeast-2.amazonaws.com/w140/${image.key}`}
-        alt=""
+      <Image
+        imageUrl={`https://d1uh2bybdvfw6i.cloudfront.net/w140/${image.key}`}
       />
     </Link>
   ));

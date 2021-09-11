@@ -91,7 +91,7 @@ const ImagePage = () => {
         )}
       </div>
       <img
-        src={`https://image-upload-album.s3.ap-northeast-2.amazonaws.com/w600/${image.key}`}
+        src={`https://d1uh2bybdvfw6i.cloudfront.net/w600/${image.key}`}
         alt=""
         style={{ width: "100%" }}
       />
